@@ -62,7 +62,30 @@ class ViewController: UIViewController, PriceSetDelegate {
     
     func setPrice(price: Double?) {
         DispatchQueue.main.async {
-            print(price)
+            if let p = price {
+                var maxPrice: Double = 5.0
+                
+                while p > maxPrice {
+                    maxPrice += 5
+                }
+                
+                guard self.sheetLines.count >= 2 else { return }
+                
+                let priceView = UIView()
+                priceView.backgroundColor = UIColor(named: "theme")
+                self.view.addSubview(priceView)
+                
+                let x = 100.0
+                let sheetHeight = 250.0
+                let heightPercentage = p / maxPrice
+                let finalHeight = sheetHeight * heightPercentage
+                let y = (self.sheetLines.first?.center.y)! - finalHeight
+                let width = self.view.frame.width - 2 * x
+                
+            
+                priceView.frame = CGRect(x: x, y: y, width: width, height: finalHeight)
+                
+            }
         }
     }
     
@@ -70,7 +93,7 @@ class ViewController: UIViewController, PriceSetDelegate {
         DispatchQueue.main.async {
             if let p = price {
                 
-                var maxPrice: Double = 0.0
+                var maxPrice: Double = 5.0
                 
                 while p > maxPrice {
                     maxPrice += 5
