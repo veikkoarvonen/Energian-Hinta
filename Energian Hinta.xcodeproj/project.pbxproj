@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B63516322C727C0000E70204 /* Lato-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B63516312C727C0000E70204 /* Lato-Bold.ttf */; };
+		B63516352C727C9300E70204 /* Lato-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B63516342C727C9200E70204 /* Lato-Regular.ttf */; };
 		B6BCFC6D2C6FDEB5001B4F72 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6BCFC6C2C6FDEB5001B4F72 /* AppDelegate.swift */; };
 		B6BCFC6F2C6FDEB5001B4F72 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6BCFC6E2C6FDEB5001B4F72 /* SceneDelegate.swift */; };
 		B6BCFC712C6FDEB5001B4F72 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6BCFC702C6FDEB5001B4F72 /* ViewController.swift */; };
@@ -17,6 +19,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B63516312C727C0000E70204 /* Lato-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Bold.ttf"; sourceTree = "<group>"; };
+		B63516342C727C9200E70204 /* Lato-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Regular.ttf"; sourceTree = "<group>"; };
 		B6BCFC692C6FDEB5001B4F72 /* Energian Hinta.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Energian Hinta.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6BCFC6C2C6FDEB5001B4F72 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B6BCFC6E2C6FDEB5001B4F72 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -39,10 +43,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B63516332C727C6200E70204 /* CustomFonts */ = {
+			isa = PBXGroup;
+			children = (
+				B63516312C727C0000E70204 /* Lato-Bold.ttf */,
+				B63516342C727C9200E70204 /* Lato-Regular.ttf */,
+			);
+			path = CustomFonts;
+			sourceTree = "<group>";
+		};
 		B6BCFC602C6FDEB5001B4F72 = {
 			isa = PBXGroup;
 			children = (
 				B6BCFC6B2C6FDEB5001B4F72 /* Energian Hinta */,
+				B63516332C727C6200E70204 /* CustomFonts */,
 				B6BCFC6A2C6FDEB5001B4F72 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -138,7 +152,9 @@
 			files = (
 				B6BCFC792C6FDEB6001B4F72 /* LaunchScreen.storyboard in Resources */,
 				B6BCFC762C6FDEB6001B4F72 /* Assets.xcassets in Resources */,
+				B63516352C727C9300E70204 /* Lato-Regular.ttf in Resources */,
 				B6BCFC742C6FDEB5001B4F72 /* Main.storyboard in Resources */,
+				B63516322C727C0000E70204 /* Lato-Bold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

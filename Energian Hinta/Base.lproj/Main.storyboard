@@ -7,6 +7,11 @@
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="Lato-Bold.ttf">
+            <string>Lato-Bold</string>
+        </array>
+    </customFonts>
     <scenes>
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
@@ -16,23 +21,34 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Testi" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YNB-dC-aLC">
-                                <rect key="frame" x="178.66666666666666" y="415.66666666666669" width="36" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mgi-wZ-xnJ">
+                                <rect key="frame" x="0.0" y="59" width="393" height="759"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Pörssisähkön hinta" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="p9K-9k-wUQ">
+                                        <rect key="frame" x="20" y="30" width="353" height="42"/>
+                                        <fontDescription key="fontDescription" name="Lato-Bold" family="Lato" pointSize="35"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="p9K-9k-wUQ" secondAttribute="trailing" constant="20" id="7x5-uw-gnh"/>
+                                    <constraint firstItem="p9K-9k-wUQ" firstAttribute="top" secondItem="Mgi-wZ-xnJ" secondAttribute="top" constant="30" id="D6D-F0-FQ5"/>
+                                    <constraint firstItem="p9K-9k-wUQ" firstAttribute="leading" secondItem="Mgi-wZ-xnJ" secondAttribute="leading" constant="20" id="lQ6-bM-KLO"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" systemColor="systemYellowColor"/>
+                        <color key="tintColor" systemColor="systemYellowColor"/>
                         <constraints>
-                            <constraint firstItem="YNB-dC-aLC" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="S8s-bj-XMP"/>
-                            <constraint firstItem="YNB-dC-aLC" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="hoR-R6-ixi"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="Mgi-wZ-xnJ" secondAttribute="bottom" id="DdN-6t-iYQ"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Mgi-wZ-xnJ" secondAttribute="trailing" id="atc-WQ-Gvg"/>
+                            <constraint firstItem="Mgi-wZ-xnJ" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="gro-Kf-GYv"/>
+                            <constraint firstItem="Mgi-wZ-xnJ" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="hI6-Ps-M4z"/>
                         </constraints>
                     </view>
-                    <connections>
-                        <outlet property="testLabel" destination="YNB-dC-aLC" id="hM1-IA-2LC"/>
-                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
@@ -42,6 +58,9 @@
     <resources>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemYellowColor">
+            <color red="1" green="0.80000000000000004" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

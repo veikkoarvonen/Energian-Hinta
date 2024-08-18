@@ -22,14 +22,11 @@ class ViewController: UIViewController, PriceSetDelegate {
     
     func setLabel(price: Double?) {
         DispatchQueue.main.async {
-            if let priceToDisplay = price {
-                self.testLabel.text = "\(priceToDisplay) c/kWh"
-            } else {
-                self.testLabel.text = "Virhe hinnan haussa"
+                print(price)
             }
         }
     }
 
     
-}
+
 
