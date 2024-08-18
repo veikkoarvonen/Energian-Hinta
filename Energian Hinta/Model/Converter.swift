@@ -8,7 +8,8 @@
 import Foundation
 
 protocol PriceSetDelegate: AnyObject {
-    func setLabel(price: Double?)
+    func setPrice(price: Double?)
+    func updateSheet(price: Double?)
 }
 
 struct PriceManager {
@@ -34,7 +35,8 @@ struct PriceManager {
                 }
                 if let safeData = data {
                     let jsonResult = parseJSON(data: safeData)
-                    delegate?.setLabel(price: jsonResult)
+                    delegate?.setPrice(price: jsonResult)
+                    delegate?.updateSheet(price: jsonResult)
                 }
             }
             task.resume()
