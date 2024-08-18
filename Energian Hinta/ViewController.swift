@@ -10,7 +10,7 @@ import UIKit
 class ViewController: UIViewController, PriceSetDelegate {
     var sheetLabels = [UILabel]()
     var sheetLines = [UIView]()
-    let labelYPositions = [200.0, 250.0, 300.0, 350.0, 400.0, 450.0]
+    let labelYPositions = [450.0, 400.0, 350.0, 300.0, 250.0, 200.0]
     let labelTexts = ["25", "20", "15", "10", "5", "0"]
     
     
@@ -76,7 +76,11 @@ class ViewController: UIViewController, PriceSetDelegate {
                     maxPrice += 5
                 }
                 
-                
+                for i in 0..<self.sheetLabels.count {
+                    let d = Double(i)
+                    let sheetPrice = maxPrice / 5.0 * d
+                    self.sheetLabels[i].text = "\(Int(sheetPrice))"
+                }
                 
                 
             }
