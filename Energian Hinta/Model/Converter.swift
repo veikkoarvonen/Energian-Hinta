@@ -7,8 +7,13 @@
 
 import Foundation
 
+protocol PriceSetDelegate: AnyObject {
+    func setLabel(price: Double?)
+}
+
 struct PriceManager {
     let formatter = DateFormatter()
+    var delegate: PriceSetDelegate?
     
     func fetchPrice(from date: Date) {
         formatter.dateFormat = "YYYY-MM-dd"
@@ -28,7 +33,8 @@ struct PriceManager {
                     return
                 }
                 if let safeData = data {
-                    print(parseJSON(data: safeData))
+                    let jsonResult = parseJSON(data: safeData)
+                    delegate?.setLabel(price: jsonResult)
                 }
             }
             task.resume()
