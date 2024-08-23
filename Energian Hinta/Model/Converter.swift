@@ -35,7 +35,6 @@ struct PriceManager2 {
     func fetchDailyPrices(for date: Date) {
         let dispatchGroup = DispatchGroup()
         
-        
         for i in 0..<hourStrings.count {
             dispatchGroup.enter()
             performRequest(for: date, hour: hourStrings[i])
