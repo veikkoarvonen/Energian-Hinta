@@ -8,105 +8,12 @@
 import Foundation
 
 protocol PriceSetDelegate: AnyObject {
-    func setPrice(price: Double?)
-    func updateSheet(price: Double?)
-    func updatePriceArray(prices: [HourlyPrice])
     func passFetchedPrice(price: HoursPrice)
     func sortFetchedPrices()
 }
 
-struct PriceManager {
-    let formatter = DateFormatter()
-    var delegate: PriceSetDelegate?
-    
-    func fetchPrice(from date: Date) {
-        formatter.dateFormat = "YYYY-MM-dd"
-        let dateString = formatter.string(from: date)
-        formatter.dateFormat = "HH"
-        let hourstring = formatter.string(from: date)
-        let URL = "https://api.porssisahko.net/v1/price.json?date=\(dateString)&hour=\(hourstring)"
-        performRequest(with: URL)
-    }
-    
-    func performRequest(with url: String) {
-        if let url = URL(string: url) {
-            let session = URLSession(configuration: .default)
-            let task = session.dataTask(with: url) { (data, response, error) in
-                if error != nil {
-                    print("Error in URL session")
-                    return
-                }
-                if let safeData = data {
-                    let jsonResult = parseJSON(data: safeData)
-                    delegate?.setPrice(price: jsonResult)
-                    delegate?.updateSheet(price: jsonResult)
-                }
-            }
-            task.resume()
-        }
-    }
-    
-    func parseJSON(data: Data) -> Double? {
-        let decoder = JSONDecoder()
-        do {
-            let decodedData = try decoder.decode(ElectricityPrice.self, from: data)
-            let price = decodedData.price
-            return price
-        } catch {
-            return nil
-        }
-    }
-    
-    
-    func fetchLatestPrices() {
-        let URL = "https://api.porssisahko.net/v1/latest-prices.json"
-        performDayRequest(with: URL)
-    }
-    
-    func performDayRequest(with url: String) {
-        if let url = URL(string: url) {
-            let session = URLSession(configuration: .default)
-            let task = session.dataTask(with: url) { (data, response, error) in
-                if error != nil {
-                    print("Error in day URL session")
-                    return
-                }
-                
-                
-                
-                if let safeData = data {
-                    parseLatestJSON(data: safeData)
-                }
-            }
-            task.resume()
-        }
-    }
-    
-    func parseLatestJSON(data: Data) {
-        let decoder = JSONDecoder()
-        do {
-            let decodedData = try decoder.decode(ElectricityPriceResponse.self, from: data)
-        
-            delegate?.updatePriceArray(prices: decodedData.prices)
-        } catch {
-            print("Could not parse latest JSON")
-        }
-    }
-    
-}
-
 struct ElectricityPrice: Codable {
     var price: Double
-}
-
-struct ElectricityPriceResponse: Codable {
-    let prices: [HourlyPrice]
-}
-
-struct HourlyPrice: Codable {
-    let price: Double
-    let startDate: String
-    let endDate: String
 }
 
 struct HoursPrice: Codable {

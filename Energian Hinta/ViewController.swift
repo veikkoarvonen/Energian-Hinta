@@ -12,7 +12,6 @@ class ViewController: UIViewController, PriceSetDelegate {
     
     var sheetLabels = [UILabel]()
     var sheetLines = [UIView]()
-    var pricesToDisplay = [HourlyPrice]()
     var priceViews = [UIView]()
     
     let labelYPositions = [450.0, 400.0, 350.0, 300.0, 250.0, 200.0]
@@ -25,14 +24,9 @@ class ViewController: UIViewController, PriceSetDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setPriceSheet()
-        var priceManager = PriceManager()
-        priceManager.delegate = self
         var priceManager2 = PriceManager2()
         priceManager2.delegate = self
         priceManager2.fetchDailyPrices(for: Date())
-        //priceManager.fetchPrice(from: Date())
-        //priceManager.fetchLatestPrices()
-
     }
 
     private func setPriceSheet() {
@@ -100,94 +94,6 @@ class ViewController: UIViewController, PriceSetDelegate {
             }
             self.displayDailyPrices(prices: prices)
         }
-    }
-    
-    
-    
-    func setPrice(price: Double?) {
-        DispatchQueue.main.async {
-            if let p = price {
-                var maxPrice: Double = 5.0
-                
-                while p > maxPrice {
-                    maxPrice += 5
-                }
-                
-                guard self.sheetLines.count >= 2 else { return }
-                
-                let priceView = UIView()
-                priceView.backgroundColor = UIColor(named: "theme")
-                self.view.addSubview(priceView)
-                
-                let x = 100.0
-                let sheetHeight = 250.0
-                let heightPercentage = p / maxPrice
-                let finalHeight = sheetHeight * heightPercentage
-                let y = (self.sheetLines.first?.center.y)! - finalHeight
-                let width = self.view.frame.width - 2 * x
-                
-            
-                priceView.frame = CGRect(x: x, y: y, width: width, height: finalHeight)
-                
-            }
-        }
-    }
-    
-    func updateSheet(price: Double?) {
-        DispatchQueue.main.async {
-            if let p = price {
-                
-                var maxPrice: Double = 5.0
-                
-                while p > maxPrice {
-                    maxPrice += 5
-                }
-                
-                for i in 0..<self.sheetLabels.count {
-                    let d = Double(i)
-                    let sheetPrice = maxPrice / 5.0 * d
-                    self.sheetLabels[i].text = "\(Int(sheetPrice))"
-                }
-                
-                
-            }
-        }
-    }
-    
-    func updatePriceArray(prices: [HourlyPrice]) {
-        DispatchQueue.main.async {
-            
-            let formatter = DateFormatter()
-            formatter.dateFormat = "YYYY-MM-dd"
-            
-            let todaysString = formatter.string(from: Date())
-            
-            for i in 0..<prices.count {
-                if prices[i].startDate.contains(todaysString) {
-                    self.pricesToDisplay.append(prices[i])
-                }
-            }
-            self.getDailyPrices()
-        }
-    }
-    
-    func getDailyPrices() {
-        var prices: [Double?] = []
-        
-        let priceFilters = ["00:00:00", "01:00:00", "02:00:00", "03:00:00", "04:00:00", "05:00:00", "06:00:00", "07:00:00", "08:00:00", "09:00:00", "10:00:00", "11:00:00", "12:00:00", "13:00:00", "14:00:00", "15:00:00", "16:00:00", "17:00:00", "18:00:00", "19:00:00", "20:00:00", "21:00:00", "22:00:00", "23:00:00"]
-
-        for i in 0..<priceFilters.count {
-            
-            let filter = priceFilters[i]
-            if let p = pricesToDisplay.first(where:  { $0.startDate.contains(filter) }) {
-                prices.append(p.price)
-            } else {
-                prices.append(nil)
-            }
-        }
-        print(pricesToDisplay)
-        displayDailyPrices(prices: prices)
-        
     }
     
     func displayDailyPrices(prices: [Double?]) {
