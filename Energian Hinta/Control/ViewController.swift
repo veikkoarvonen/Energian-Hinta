@@ -9,6 +9,15 @@ import UIKit
 
 class ViewController: UIViewController, PriceSetDelegate {
     
+//MARK: - IBOutlets
+    
+    @IBOutlet weak var cheapestPrice: UILabel!
+    @IBOutlet weak var cheapestTime: UILabel!
+    @IBOutlet weak var expensivePrice: UILabel!
+    @IBOutlet weak var expensiveTime: UILabel!
+    @IBOutlet weak var currentPrice: UILabel!
+    @IBOutlet weak var currentTime: UILabel!
+    
 //MARK: - Variables and viewDidLoad
     
     var sheetLabels = [UILabel]()
@@ -43,6 +52,7 @@ class ViewController: UIViewController, PriceSetDelegate {
                 return p
             }
             self.displayDailyPrices(prices: prices)
+            self.updateLowerLabels()
         }
     }
    
@@ -105,6 +115,41 @@ class ViewController: UIViewController, PriceSetDelegate {
         } else {
             print("The array contains only nil values or is empty")
         }
+    }
+    
+    //MARK: - Set max, min & current price labels
+    
+    func updateLowerLabels() {
+        
+        //Set the highest price
+        if let highestPrice = dailyPrices.max(by: { ($0.price ?? 0) < ($1.price ?? 0) }) {
+            expensivePrice.text = "\(highestPrice.price!) c/kWh"
+            expensiveTime.text = "klo \(highestPrice.hour)"
+        }
+        
+        //Set the lowest price
+        if let lowestPrice = dailyPrices.min(by: { ($0.price ?? 0) < ($1.price ?? 0) }) {
+            cheapestPrice.text = "\(lowestPrice.price!) c/kWh"
+            cheapestTime.text = "klo \(lowestPrice.hour)"
+        }
+        
+        let now = Date()
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone(identifier: "Europe/Helsinki")!
+        let hour = calendar.component(.hour, from: now)
+        
+        guard hour < dailyPrices.count else { return }
+        
+        let priceNow = dailyPrices[hour]
+        
+        // Update the current price label
+        if let priceForLabel = priceNow.price {
+            currentPrice.text = "\(priceForLabel) c/kWh"
+        } else {
+            currentPrice.text = "- c/kWh"
+        }
+        currentTime.text = "klo \(priceNow.hour)"
+        
     }
 }
 

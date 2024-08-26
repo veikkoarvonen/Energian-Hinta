@@ -64,6 +64,7 @@ struct PriceManager2 {
                 if let safeData = data {
                     parseLatestJSON(data: safeData, hour: hour)
                 } else {
+                    print("Received data for session is nil. Session hour: \(hour)")
                     let failedPrice = HoursPrice(hour: hour, price: nil)
                     delegate?.passFetchedPrice(price: failedPrice)
                 }
@@ -81,6 +82,7 @@ struct PriceManager2 {
             let fetchedPrice = HoursPrice(hour: hour, price: price)
             delegate?.passFetchedPrice(price: fetchedPrice)
         } catch {
+            print("Failed to parse JSON data for hour \(hour)")
             let failedPrice = HoursPrice(hour: hour, price: nil)
             delegate?.passFetchedPrice(price: failedPrice)
         }

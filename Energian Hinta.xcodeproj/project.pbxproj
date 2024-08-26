@@ -52,6 +52,22 @@
 			path = CustomFonts;
 			sourceTree = "<group>";
 		};
+		B64DC28C2C7C65CB00221B9F /* Control */ = {
+			isa = PBXGroup;
+			children = (
+				B6BCFC702C6FDEB5001B4F72 /* ViewController.swift */,
+			);
+			path = Control;
+			sourceTree = "<group>";
+		};
+		B64DC28D2C7C65DE00221B9F /* View */ = {
+			isa = PBXGroup;
+			children = (
+				B6BCFC722C6FDEB5001B4F72 /* Main.storyboard */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		B6BCFC602C6FDEB5001B4F72 = {
 			isa = PBXGroup;
 			children = (
@@ -75,8 +91,8 @@
 				B6BCFC6C2C6FDEB5001B4F72 /* AppDelegate.swift */,
 				B6BCFC6E2C6FDEB5001B4F72 /* SceneDelegate.swift */,
 				B6BCFC802C6FDF4A001B4F72 /* Model */,
-				B6BCFC702C6FDEB5001B4F72 /* ViewController.swift */,
-				B6BCFC722C6FDEB5001B4F72 /* Main.storyboard */,
+				B64DC28C2C7C65CB00221B9F /* Control */,
+				B64DC28D2C7C65DE00221B9F /* View */,
 				B6BCFC752C6FDEB6001B4F72 /* Assets.xcassets */,
 				B6BCFC772C6FDEB6001B4F72 /* LaunchScreen.storyboard */,
 				B6BCFC7A2C6FDEB6001B4F72 /* Info.plist */,

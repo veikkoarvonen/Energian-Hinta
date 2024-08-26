@@ -133,6 +133,14 @@
                             <constraint firstItem="Mgi-wZ-xnJ" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="hI6-Ps-M4z"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="cheapestPrice" destination="rf1-Hd-t6A" id="iWQ-Op-fal"/>
+                        <outlet property="cheapestTime" destination="dZX-IX-dcp" id="Rmv-aQ-jgQ"/>
+                        <outlet property="currentPrice" destination="ruw-xl-h58" id="S7s-dC-2Xp"/>
+                        <outlet property="currentTime" destination="5bK-Jb-Spb" id="6Mm-pm-0hF"/>
+                        <outlet property="expensivePrice" destination="KUs-1C-aZG" id="rj0-mP-bdB"/>
+                        <outlet property="expensiveTime" destination="Glp-Zc-FVI" id="0DY-Hx-Etc"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
