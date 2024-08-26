@@ -24,6 +24,7 @@ class ViewController: UIViewController, PriceSetDelegate {
     var sheetLines = [UIView]()
     var priceViews = [UIView]()
     var dailyPrices: [HoursPrice] = []
+    var singlePriceToDisplay = UIView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,9 +32,13 @@ class ViewController: UIViewController, PriceSetDelegate {
         var priceManager2 = PriceManager2()
         priceManager2.delegate = self
         priceManager2.fetchDailyPrices(for: Date())
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
+        self.view.addGestureRecognizer(tapGesture)
+        self.view.isUserInteractionEnabled = true
     }
 
-//MARK: - Functions
+//MARK: - Delegate Functions
     
     func passFetchedPrice(price: HoursPrice) {
         DispatchQueue.main.async {
@@ -111,11 +116,60 @@ class ViewController: UIViewController, PriceSetDelegate {
                 
                 priceView.frame = CGRect(x: 30, y: y, width: viewWidth, height: height)
                 priceView.center.x = centerX
+                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(priceViewTapped(_:)))
+                priceView.addGestureRecognizer(tapGesture)
+                priceView.tag = i
+                priceView.isUserInteractionEnabled = true
+                priceViews.append(priceView)
             }
         } else {
             print("The array contains only nil values or is empty")
         }
     }
+    
+//MARK: - Handle interaction with price views
+    
+    @objc func priceViewTapped(_ sender: UITapGestureRecognizer) {
+        if let tappedView = sender.view {
+            singlePriceToDisplay.removeFromSuperview()
+            
+            for oneView in priceViews {
+                oneView.backgroundColor = UIColor(named: "theme")
+            }
+            
+            let ID = tappedView.tag
+            
+            guard ID < dailyPrices.count else { return }
+            
+            let priceToDisplay = dailyPrices[ID]
+            let priceView = singlePriceView(for: priceToDisplay)
+            
+            singlePriceToDisplay = priceView
+            view.addSubview(singlePriceToDisplay)
+            singlePriceToDisplay.frame = CGRect(x: 50, y: 250, width: 80, height: 40)
+            
+            let sheetWidth = view.frame.width - 40
+            let hourWidth = sheetWidth / 24
+            let centerX = 30 + (hourWidth / 2) + (hourWidth * Double(ID))
+            
+            let priceHeight = sender.view?.frame.height
+            let centerY = 465 - 30 - priceHeight! - 20
+            
+            singlePriceToDisplay.center = CGPoint(x: centerX, y: centerY)
+            priceViews[ID].backgroundColor = .orange
+            
+        }
+    }
+    
+//MARK: - Dismiss the single price view when screen is tapped
+    
+    @objc private func viewTapped() {
+        singlePriceToDisplay.removeFromSuperview()
+        for oneView in priceViews {
+            oneView.backgroundColor = UIColor(named: "theme")
+        }
+    }
+    
     
     //MARK: - Set max, min & current price labels
     
@@ -209,6 +263,60 @@ extension ViewController {
             label.frame = CGRect(x: 10, y: 470, width: hourWidth, height: 30)
             label.center.x = x
         }
+    }
+ 
+//MARK: - Single price view
+    
+    private func singlePriceView(for price: HoursPrice) -> UIView {
+        let priceView = UIView()
+        priceView.backgroundColor = .white
+        priceView.clipsToBounds = true
+        priceView.layer.cornerRadius = 5.0
+        
+        priceView.layer.shadowColor = UIColor.black.cgColor  // Color of the shadow
+        priceView.layer.shadowOpacity = 0.5  // Opacity of the shadow (0.0 to 1.0)
+        priceView.layer.shadowOffset = CGSize(width: 0, height: 2)  // Position of the shadow
+        priceView.layer.shadowRadius = 4  // Blur radius of the shadow
+        priceView.layer.masksToBounds = false
+        
+        let hourString = "klo \(price.hour)"
+        
+        let priceString: String = {
+            if let p = price.price {
+                return "\(p) c/kWh"
+            } else {
+                return "- c/kWh"
+            }
+        }()
+        
+        let hourLabel = UILabel()
+        hourLabel.text = hourString
+        hourLabel.textAlignment = .center
+        hourLabel.font = UIFont(name: "optima", size: 15) ?? UIFont.systemFont(ofSize: 15)
+        hourLabel.translatesAutoresizingMaskIntoConstraints = false
+        priceView.addSubview(hourLabel)
+        
+        let priceLabel = UILabel()
+        priceLabel.text = priceString
+        priceLabel.textAlignment = .center
+        priceLabel.font = UIFont(name: "optima", size: 12) ?? UIFont.systemFont(ofSize: 12)
+        priceLabel.translatesAutoresizingMaskIntoConstraints = false
+        priceView.addSubview(priceLabel)
+        
+        NSLayoutConstraint.activate([
+            hourLabel.topAnchor.constraint(equalTo: priceView.topAnchor),
+            hourLabel.leadingAnchor.constraint(equalTo: priceView.leadingAnchor),
+            hourLabel.trailingAnchor.constraint(equalTo: priceView.trailingAnchor),
+            hourLabel.heightAnchor.constraint(equalToConstant: 20.0),
+            
+            priceLabel.topAnchor.constraint(equalTo: hourLabel.bottomAnchor),
+            priceLabel.leadingAnchor.constraint(equalTo: priceView.leadingAnchor),
+            priceLabel.trailingAnchor.constraint(equalTo: priceView.trailingAnchor),
+            priceLabel.bottomAnchor.constraint(equalTo: priceView.bottomAnchor),
+            priceLabel.heightAnchor.constraint(equalToConstant: 20.0)
+        ])
+        
+        return priceView
     }
     
 }
