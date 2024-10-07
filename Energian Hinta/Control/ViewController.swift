@@ -9,14 +9,225 @@ import UIKit
 
 class ViewController: UIViewController, PriceSetDelegate {
     
-//MARK: - IBOutlets
+    //MARK: - IBOutlets
     
+    @IBOutlet weak var headerLabel: UILabel!
     @IBOutlet weak var cheapestPrice: UILabel!
     @IBOutlet weak var cheapestTime: UILabel!
     @IBOutlet weak var expensivePrice: UILabel!
     @IBOutlet weak var expensiveTime: UILabel!
     @IBOutlet weak var currentPrice: UILabel!
     @IBOutlet weak var currentTime: UILabel!
+    
+    //MARK: - Variables
+    
+    var priceFetcher = PriceFetcher()
+    
+    var sheetLines: [UIView] = []
+    var hourLabels: [UILabel] = []
+    var priceLabels: [UILabel] = []
+    
+    var hasSetUI = false
+    var isPortrait = Bool()
+    
+    var dailyPrices: [HoursPrice] = []
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        priceFetcher.delegate = self
+    }
+    
+    override func viewDidLayoutSubviews() {
+        if !hasSetUI {
+            initializeUI()
+            checkOrientation()
+            updateUI(isPortrait: isPortrait)
+            hasSetUI = true
+            priceFetcher.fetchDailyPrices(for: Date())
+        }
+    }
+    
+    
+    //Handle orientation changes
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: nil) { [self] _ in
+            checkOrientation()
+            updateUI(isPortrait: isPortrait)
+            updatePriceUI(isPortrait: isPortrait)
+        }
+    }
+    
+    //Check orientation
+    func checkOrientation() {
+        let screenSize = UIScreen.main.bounds
+        if screenSize.width > screenSize.height {
+            print("Landscape mode")
+            isPortrait = false
+        } else {
+            print("Portrait mode")
+            isPortrait = true
+        }
+    }
+    
+    func passFetchedPrice(price: HoursPrice) {
+        DispatchQueue.main.async {
+            self.dailyPrices.append(price)
+            print("Passing fetched price: \(price)")
+        }
+    }
+    
+    func sortFetchedPrices() {
+        DispatchQueue.main.async { [self] in
+            dailyPrices.sort { $0.hour < $1.hour }
+            for price in dailyPrices {
+                //print("Hour: \(price.hour), price: \(price.price)")
+            }
+            updatePriceUI(isPortrait: isPortrait)
+        }
+    }
+    
+    func updatePriceUI(isPortrait: Bool) {
+        guard dailyPrices.count != 0 else {
+            print("No prices in price array, exiting price UI function")
+            return
+        }
+        
+        if let maxPrice = dailyPrices.compactMap({ $0.price != nil ? $0 : nil }).max(by: { $0.price! < $1.price! }) {
+            print("Highest price is at \(maxPrice.hour): \(maxPrice.price!)")
+            var maxPriceInSheet: Double = 0
+            while maxPriceInSheet < maxPrice.price! {
+                maxPriceInSheet += 5
+            }
+            
+            for i in 0..<priceLabels.count {
+                var width: Int {
+                    if isPortrait {
+                        return 25
+                    } else {
+                        return 55
+                    }
+                }
+                let priceForLabel = Int(maxPriceInSheet) - i * (Int(maxPriceInSheet) / 5)
+                
+                priceLabels[i].text = "\(priceForLabel)"
+                priceLabels[i].frame = CGRect(x: 0, y: 0, width: width, height: 20)
+                priceLabels[i].center.y = sheetLines[i].center.y
+            }
+            
+        } else {
+            
+            
+            
+        }
+        
+        
+        
+    }
+}
+
+extension ViewController {
+    
+    //MARK: - Finish UI programatically
+    
+    //Create and add rest of the elements
+    private func initializeUI() {
+        
+        for _ in 0...5 {
+            let line = UIView()
+            line.backgroundColor = .systemGray3
+            view.addSubview(line)
+            sheetLines.append(line)
+            
+            let label = UILabel()
+            label.textColor = .systemGray2
+            label.font = UIFont(name: "optima", size: 10)
+            label.textAlignment = .center
+            label.text = ""
+            view.addSubview(label)
+            priceLabels.append(label)
+        }
+        
+        for i in 0...23 {
+            let label = UILabel()
+            label.textColor = .systemGray2
+            label.font = UIFont(name: "optima", size: 10)
+            label.textAlignment = .center
+            label.text = "\(i)"
+            view.addSubview(label)
+            hourLabels.append(label)
+        }
+        
+    }
+    
+    //Update positions responsively
+    private func updateUI(isPortrait: Bool) {
+        
+        if isPortrait {
+            view.backgroundColor = UIColor(named: "theme")
+            headerLabel.textAlignment = .left
+        } else {
+            view.backgroundColor = .white
+            headerLabel.textAlignment = .center
+        }
+        
+        var sheetXcord: Int {
+            if isPortrait {
+                return 25
+            } else {
+                return 55
+            }
+        }
+        
+        var sheetWidth: Int {
+            if isPortrait {
+                return Int(view.frame.width) - sheetXcord - 5
+            } else {
+                return Int(view.frame.width) - sheetXcord - 55
+            }
+        }
+        
+        var sheetTopYcord: CGFloat {
+            if isPortrait {
+                return view.safeAreaInsets.top + headerLabel.frame.height + 50
+            } else {
+                return headerLabel.frame.height + 30 + 25
+            }
+        }
+        
+        var sheetHeight: Int {
+            if isPortrait {
+                return 250
+            } else {
+                return Int(view.frame.height - headerLabel.frame.height - 80)
+            }
+        }
+        
+        var sheetlineYcords: [Int] = []
+        for i in 0..<sheetLines.count {
+            let y = Int(sheetTopYcord) + (sheetHeight / 5) * i
+            sheetlineYcords.append(y)
+        }
+        
+        for i in 0..<sheetLines.count {
+            sheetLines[i].frame = CGRect(x: sheetXcord, y: sheetlineYcords[i], width: sheetWidth, height: 1)
+        }
+        
+        let c: [UIColor] = [.red, .orange, .red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,]
+        
+        for i in 0..<hourLabels.count {
+            let x = sheetXcord + (sheetWidth / 24) * i
+            hourLabels[i].backgroundColor = c[i]
+            let y = Int(sheetTopYcord) + sheetHeight + 5
+            hourLabels[i].frame = CGRect(x: x, y: y, width: sheetWidth / 24, height: 20)
+        }
+
+    }
+}
+  
+/*
+    
+
     
 //MARK: - Variables and viewDidLoad
     
@@ -322,3 +533,4 @@ extension ViewController {
 }
 
 
+*/
