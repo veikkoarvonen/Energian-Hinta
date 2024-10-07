@@ -46,7 +46,8 @@ class ViewController: UIViewController, PriceSetDelegate {
             priceFetcher.fetchDailyPrices(for: Date())
         }
     }
-    
+ 
+//MARK: - Deal with orientation changes
     
     //Handle orientation changes
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -70,6 +71,8 @@ class ViewController: UIViewController, PriceSetDelegate {
         }
     }
     
+//MARK: - Delegate functions from price fetcher
+    
     func passFetchedPrice(price: HoursPrice) {
         DispatchQueue.main.async {
             self.dailyPrices.append(price)
@@ -92,6 +95,8 @@ class ViewController: UIViewController, PriceSetDelegate {
             print("No prices in price array, exiting price UI function")
             return
         }
+ 
+//MARK: - Fetch the max price and update price labels in range
         
         if let maxPrice = dailyPrices.compactMap({ $0.price != nil ? $0 : nil }).max(by: { $0.price! < $1.price! }) {
             print("Highest price is at \(maxPrice.hour): \(maxPrice.price!)")
@@ -115,14 +120,37 @@ class ViewController: UIViewController, PriceSetDelegate {
                 priceLabels[i].center.y = sheetLines[i].center.y
             }
             
+            let roundedMaxPrice = round(maxPrice.price! * 10) / 10
+            expensivePrice.text = "\(roundedMaxPrice) c/kWh"
+            expensiveTime.text = "klo \(maxPrice.hour)"
+            
         } else {
-            
-            
-            
+            print("Failed to fetch the max price")
+        }
+     
+//MARK: - Fetch min & current price
+        
+        if let minPrice = dailyPrices.compactMap({ $0.price != nil ? $0 : nil }).min(by: { $0.price! < $1.price! }) {
+            let roundedMinPrice = round(minPrice.price! * 10) / 10
+            cheapestPrice.text = "\(roundedMinPrice) c/kWh"
+            cheapestTime.text = "klo \(minPrice.hour)"
+        } else {
+            print("Failed to fetch the min price")
         }
         
+        let now = Date()
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone(identifier: "Europe/Helsinki")!
+        let hour = calendar.component(.hour, from: now)
         
-        
+        if hour < dailyPrices.count  {
+            let priceNow = dailyPrices[hour]
+            if let price = priceNow.price {
+                let roundedPrice = round(price * 10) / 10
+                currentPrice.text = "\(roundedPrice) c/kWh"
+                currentTime.text = "klo \(hour)"
+            }
+        }
     }
 }
 
