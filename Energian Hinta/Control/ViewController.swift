@@ -19,6 +19,18 @@ class ViewController: UIViewController, PriceSetDelegate {
     @IBOutlet weak var currentPrice: UILabel!
     @IBOutlet weak var currentTime: UILabel!
     
+    @IBOutlet weak var reloadButton: UIButton!
+    @IBAction func reloadPressed(_ sender: UIButton) {
+        var comps = DateComponents()
+        comps.year = 2024
+        comps.month = 10
+        comps.day = 15
+        let date = Calendar.current.date(from: comps)
+        priceFetcher.fetchDailyPrices(for: date!)
+        reloadButton.isHidden = true
+        reloadButton.isUserInteractionEnabled = false
+    }
+    
     //MARK: - Variables
     
     var priceFetcher = PriceFetcher()
@@ -26,6 +38,7 @@ class ViewController: UIViewController, PriceSetDelegate {
     var sheetLines: [UIView] = []
     var hourLabels: [UILabel] = []
     var priceLabels: [UILabel] = []
+    var priceViews: [UIView] = []
     
     var hasSetUI = false
     var isPortrait = Bool()
@@ -43,7 +56,14 @@ class ViewController: UIViewController, PriceSetDelegate {
             checkOrientation()
             updateUI(isPortrait: isPortrait)
             hasSetUI = true
-            priceFetcher.fetchDailyPrices(for: Date())
+            
+            var comps = DateComponents()
+            comps.year = 2024
+            comps.month = 10
+            comps.day = 15
+            let date = Calendar.current.date(from: comps)
+            
+            priceFetcher.fetchDailyPrices(for: date!)
         }
     }
  
@@ -55,7 +75,7 @@ class ViewController: UIViewController, PriceSetDelegate {
         coordinator.animate(alongsideTransition: nil) { [self] _ in
             checkOrientation()
             updateUI(isPortrait: isPortrait)
-            updatePriceUI(isPortrait: isPortrait)
+            updatePriceUI(isPortrait: isPortrait, withAnimation: false)
         }
     }
     
@@ -86,22 +106,90 @@ class ViewController: UIViewController, PriceSetDelegate {
             for price in dailyPrices {
                 //print("Hour: \(price.hour), price: \(price.price)")
             }
-            updatePriceUI(isPortrait: isPortrait)
+            updatePriceUI(isPortrait: isPortrait, withAnimation: true)
         }
     }
+
+//MARK: - Update price displaying UI
     
-    func updatePriceUI(isPortrait: Bool) {
+    
+    func updatePriceUI(isPortrait: Bool, withAnimation animate: Bool) {
         guard dailyPrices.count != 0 else {
             print("No prices in price array, exiting price UI function")
+            didFailWithPriceFetch()
             return
         }
- 
-//MARK: - Fetch the max price and update price labels in range
         
-        if let maxPrice = dailyPrices.compactMap({ $0.price != nil ? $0 : nil }).max(by: { $0.price! < $1.price! }) {
-            print("Highest price is at \(maxPrice.hour): \(maxPrice.price!)")
-            var maxPriceInSheet: Double = 0
-            while maxPriceInSheet < maxPrice.price! {
+        let maxPrice = dailyPrices.compactMap({ $0.price != nil ? $0 : nil }).max(by: { $0.price! < $1.price! })
+        let minPrice = dailyPrices.compactMap({ $0.price != nil ? $0 : nil }).min(by: { $0.price! < $1.price! })
+        
+        createSheetPriceRange(maxPrice: maxPrice)
+        showMaxPrice(maxPrice: maxPrice)
+        showMinPrice(minPrice: minPrice)
+        showCurrentPrice()
+        displayPrices(withAnimation: animate, maxPrice: maxPrice)
+        
+        
+    }
+    
+    func displayPrices(withAnimation animate: Bool, maxPrice: HoursPrice?) {
+        guard let maxP = maxPrice else { return }
+        guard let p = maxP.price else { return }
+        guard priceViews.count == hourLabels.count else {
+            print("Cannot create priceviews. Count does not match hour label count")
+            return
+        }
+        
+        var maxPriceInSheet: Double = 5
+        while maxPriceInSheet < p {
+            maxPriceInSheet += 5
+        }
+        
+        let sheetTopY = sheetLines.first!.center.y
+        let sheetBottomY = sheetLines.last!.center.y
+        
+        let sheetHeight = sheetBottomY - sheetTopY
+        let sheetWidth = sheetLines.first!.frame.width
+        
+        print(sheetHeight)
+        print(maxPriceInSheet)
+        
+        for i in 0..<priceViews.count {
+            guard i < dailyPrices.count else { continue }
+            guard let price = dailyPrices[i].price else { continue }
+            
+            let relativeHeight = price / maxPriceInSheet
+            let height = sheetHeight * relativeHeight
+            let width = sheetWidth / 24 - 5
+            let y = sheetBottomY - height
+            
+            priceViews[i].frame = CGRect(x: 0, y: y, width: width, height: height)
+            priceViews[i].center.x = hourLabels[i].center.x
+            
+            if animate {
+                priceViews[i].frame.size.height = 1
+                priceViews[i].frame.origin.y = sheetBottomY
+                UIView.animate(withDuration: 0.5) {
+                    self.priceViews[i].frame.size.height = height
+                    self.priceViews[i].frame.origin.y = y
+                }
+            }
+        }
+      
+    }
+    
+    
+    func didFailWithPriceFetch() {
+        reloadButton.isHidden = false
+        reloadButton.isUserInteractionEnabled = true
+    }
+    
+//MARK: - Generate sheet range & show max min current price
+    
+    func createSheetPriceRange(maxPrice: HoursPrice?) {
+        if let p = dailyPrices.compactMap({ $0.price != nil ? $0 : nil }).max(by: { $0.price! < $1.price! }) {
+            var maxPriceInSheet: Double = 5
+            while maxPriceInSheet < p.price! {
                 maxPriceInSheet += 5
             }
             
@@ -119,25 +207,33 @@ class ViewController: UIViewController, PriceSetDelegate {
                 priceLabels[i].frame = CGRect(x: 0, y: 0, width: width, height: 20)
                 priceLabels[i].center.y = sheetLines[i].center.y
             }
-            
-            let roundedMaxPrice = round(maxPrice.price! * 10) / 10
+        } else {
+            print("Failed to identify max price due to nil value, cannot create sheet range")
+        }
+    }
+    
+    func showMaxPrice(maxPrice: HoursPrice?) {
+        if let p = maxPrice {
+            let roundedMaxPrice = round(p.price! * 100) / 100
             expensivePrice.text = "\(roundedMaxPrice) c/kWh"
-            expensiveTime.text = "klo \(maxPrice.hour)"
+            expensiveTime.text = "klo \(p.hour)"
             
         } else {
             print("Failed to fetch the max price")
         }
-     
-//MARK: - Fetch min & current price
-        
-        if let minPrice = dailyPrices.compactMap({ $0.price != nil ? $0 : nil }).min(by: { $0.price! < $1.price! }) {
-            let roundedMinPrice = round(minPrice.price! * 10) / 10
+    }
+    
+    func showMinPrice(minPrice: HoursPrice?) {
+        if let p = dailyPrices.compactMap({ $0.price != nil ? $0 : nil }).min(by: { $0.price! < $1.price! }) {
+            let roundedMinPrice = round(p.price! * 100) / 100
             cheapestPrice.text = "\(roundedMinPrice) c/kWh"
-            cheapestTime.text = "klo \(minPrice.hour)"
+            cheapestTime.text = "klo \(p.hour)"
         } else {
             print("Failed to fetch the min price")
         }
-        
+    }
+    
+    func showCurrentPrice() {
         let now = Date()
         var calendar = Calendar.current
         calendar.timeZone = TimeZone(identifier: "Europe/Helsinki")!
@@ -146,12 +242,13 @@ class ViewController: UIViewController, PriceSetDelegate {
         if hour < dailyPrices.count  {
             let priceNow = dailyPrices[hour]
             if let price = priceNow.price {
-                let roundedPrice = round(price * 10) / 10
+                let roundedPrice = round(price * 100) / 100
                 currentPrice.text = "\(roundedPrice) c/kWh"
                 currentTime.text = "klo \(hour)"
             }
         }
     }
+    
 }
 
 extension ViewController {
@@ -161,6 +258,10 @@ extension ViewController {
     //Create and add rest of the elements
     private func initializeUI() {
         
+        reloadButton.isHidden = true
+        reloadButton.isUserInteractionEnabled = false
+        
+        //Lines in the price sheet
         for _ in 0...5 {
             let line = UIView()
             line.backgroundColor = .systemGray3
@@ -176,6 +277,7 @@ extension ViewController {
             priceLabels.append(label)
         }
         
+        //Labels for hour numbers
         for i in 0...23 {
             let label = UILabel()
             label.textColor = .systemGray2
@@ -186,7 +288,17 @@ extension ViewController {
             hourLabels.append(label)
         }
         
+        //view's for displaying the prices
+        for _ in 0...23 {
+            let priceView = UIView()
+            priceView.backgroundColor = UIColor(named: "theme")
+            view.addSubview(priceView)
+            priceViews.append(priceView)
+        }
+        
     }
+    
+//MARK: - Updating UI
     
     //Update positions responsively
     private func updateUI(isPortrait: Bool) {
@@ -241,11 +353,11 @@ extension ViewController {
             sheetLines[i].frame = CGRect(x: sheetXcord, y: sheetlineYcords[i], width: sheetWidth, height: 1)
         }
         
-        let c: [UIColor] = [.red, .orange, .red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,]
+        //let c: [UIColor] = [.red, .orange, .red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,.red, .orange,]
         
         for i in 0..<hourLabels.count {
             let x = sheetXcord + (sheetWidth / 24) * i
-            hourLabels[i].backgroundColor = c[i]
+            //hourLabels[i].backgroundColor = c[i]
             let y = Int(sheetTopYcord) + sheetHeight + 5
             hourLabels[i].frame = CGRect(x: x, y: y, width: sheetWidth / 24, height: 20)
         }

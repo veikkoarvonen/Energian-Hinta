@@ -111,11 +111,21 @@
                                             <constraint firstAttribute="height" constant="80" id="XD5-4D-vwb"/>
                                         </constraints>
                                     </stackView>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2fZ-wq-BPc">
+                                        <rect key="frame" x="121" y="584" width="150" height="34.333333333333371"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Lataa uudestaan"/>
+                                        <connections>
+                                            <action selector="reloadPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="38u-XH-HHB"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
+                                    <constraint firstItem="2fZ-wq-BPc" firstAttribute="centerX" secondItem="Mgi-wZ-xnJ" secondAttribute="centerX" id="5X3-y6-hFv"/>
                                     <constraint firstAttribute="trailing" secondItem="p9K-9k-wUQ" secondAttribute="trailing" constant="20" id="7x5-uw-gnh"/>
                                     <constraint firstItem="p9K-9k-wUQ" firstAttribute="top" secondItem="Mgi-wZ-xnJ" secondAttribute="top" constant="30" id="D6D-F0-FQ5"/>
+                                    <constraint firstItem="2fZ-wq-BPc" firstAttribute="top" secondItem="dkT-eX-vC3" secondAttribute="bottom" constant="40" id="O73-nY-ZdR"/>
                                     <constraint firstItem="dkT-eX-vC3" firstAttribute="leading" secondItem="Mgi-wZ-xnJ" secondAttribute="leading" id="fJk-dz-kyh"/>
                                     <constraint firstAttribute="trailing" secondItem="dkT-eX-vC3" secondAttribute="trailing" id="iAE-Jg-xsL"/>
                                     <constraint firstItem="p9K-9k-wUQ" firstAttribute="leading" secondItem="Mgi-wZ-xnJ" secondAttribute="leading" constant="20" id="lQ6-bM-KLO"/>
@@ -141,11 +151,12 @@
                         <outlet property="expensivePrice" destination="KUs-1C-aZG" id="rj0-mP-bdB"/>
                         <outlet property="expensiveTime" destination="Glp-Zc-FVI" id="0DY-Hx-Etc"/>
                         <outlet property="headerLabel" destination="p9K-9k-wUQ" id="ex4-2g-ZRU"/>
+                        <outlet property="reloadButton" destination="2fZ-wq-BPc" id="kxU-wZ-8Kn"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-272.51908396946561" y="-12.67605633802817"/>
+            <point key="canvasLocation" x="-149" y="-1"/>
         </scene>
     </scenes>
     <resources>
