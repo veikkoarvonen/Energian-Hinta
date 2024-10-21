@@ -45,9 +45,14 @@ class ViewController: UIViewController, PriceSetDelegate {
     
     var dailyPrices: [HoursPrice] = []
     
+    var singlePricelabel = UILabel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         priceFetcher.delegate = self
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
+        self.view.addGestureRecognizer(tapGesture)
+        self.view.isUserInteractionEnabled = true
     }
     
     override func viewDidLayoutSubviews() {
@@ -66,16 +71,49 @@ class ViewController: UIViewController, PriceSetDelegate {
             priceFetcher.fetchDailyPrices(for: date!)
         }
     }
+    
+    @objc func priceViewTapped(_ sender: UITapGestureRecognizer) {
+        guard let tappedView = sender.view else { return }
+        
+        for v in priceViews {
+            v.backgroundColor = UIColor(named: "theme")
+        }
+        let index = tappedView.tag
+        priceViews[index].backgroundColor = .orange
+        
+        guard dailyPrices.count > index else { return }
+        
+        if let price = dailyPrices[index].price {
+            singlePricelabel.isHidden = false
+            singlePricelabel.center.x = hourLabels[index].center.x
+            singlePricelabel.center.y = priceViews[index].frame.minY - 20
+            singlePricelabel.text = "\(price) c/kWh"
+        }
+        
+    }
+    
+    @objc private func viewTapped() {
+        refreshSinglePriceView()
+    }
+    
+    func refreshSinglePriceView() {
+        for oneView in priceViews {
+            oneView.backgroundColor = UIColor(named: "theme")
+        }
+        singlePricelabel.isHidden = true
+    }
  
 //MARK: - Deal with orientation changes
     
     //Handle orientation changes
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
+        refreshSinglePriceView()
         coordinator.animate(alongsideTransition: nil) { [self] _ in
             checkOrientation()
             updateUI(isPortrait: isPortrait)
             updatePriceUI(isPortrait: isPortrait, withAnimation: false)
+            
         }
     }
     
@@ -103,9 +141,6 @@ class ViewController: UIViewController, PriceSetDelegate {
     func sortFetchedPrices() {
         DispatchQueue.main.async { [self] in
             dailyPrices.sort { $0.hour < $1.hour }
-            for price in dailyPrices {
-                //print("Hour: \(price.hour), price: \(price.price)")
-            }
             updatePriceUI(isPortrait: isPortrait, withAnimation: true)
         }
     }
@@ -289,11 +324,16 @@ extension ViewController {
         }
         
         //view's for displaying the prices
-        for _ in 0...23 {
+        for i in 0...23 {
             let priceView = UIView()
             priceView.backgroundColor = UIColor(named: "theme")
+            priceView.tag = i
             view.addSubview(priceView)
             priceViews.append(priceView)
+            
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(priceViewTapped(_:)))
+            priceView.addGestureRecognizer(tapGesture)
+            priceView.isUserInteractionEnabled = true
         }
         
     }
@@ -361,6 +401,26 @@ extension ViewController {
             let y = Int(sheetTopYcord) + sheetHeight + 5
             hourLabels[i].frame = CGRect(x: x, y: y, width: sheetWidth / 24, height: 20)
         }
+        
+        let label = UILabel()
+        label.font = UIFont(name: "optima", size: 12)
+        label.text = "8,8 c/kWh"
+        label.textAlignment = .center
+        label.backgroundColor = .white
+        view.addSubview(label)
+        singlePricelabel = label
+        
+        singlePricelabel.frame = CGRect(x: 0, y: 0, width: 80, height: 30)
+        
+        singlePricelabel.layer.shadowColor = UIColor.black.cgColor // Set the shadow color
+        singlePricelabel.layer.shadowOpacity = 0.3 // Mild shadow opacity (0 = invisible, 1 = fully opaque)
+        singlePricelabel.layer.shadowOffset = CGSize(width: 2, height: 2) // Slight offset for the shadow
+        singlePricelabel.layer.shadowRadius = 3 // Mild blur for the shadow
+        
+        singlePricelabel.layer.cornerRadius = 10 // Adjust this value for more or less rounding
+        singlePricelabel.clipsToBounds = false
+        singlePricelabel.isUserInteractionEnabled = false
+        singlePricelabel.isHidden = true
 
     }
 }
