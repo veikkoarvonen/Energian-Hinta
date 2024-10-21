@@ -46,6 +46,8 @@ class ViewController: UIViewController, PriceSetDelegate {
     var dailyPrices: [HoursPrice] = []
     
     var singlePricelabel = UILabel()
+
+//MARK: - Functions
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -68,7 +70,7 @@ class ViewController: UIViewController, PriceSetDelegate {
             comps.day = 15
             let date = Calendar.current.date(from: comps)
             
-            priceFetcher.fetchDailyPrices(for: date!)
+            priceFetcher.fetchDailyPrices(for: Date())
         }
     }
     
@@ -193,20 +195,39 @@ class ViewController: UIViewController, PriceSetDelegate {
             guard i < dailyPrices.count else { continue }
             guard let price = dailyPrices[i].price else { continue }
             
-            let relativeHeight = price / maxPriceInSheet
-            let height = sheetHeight * relativeHeight
-            let width = sheetWidth / 24 - 5
-            let y = sheetBottomY - height
-            
-            priceViews[i].frame = CGRect(x: 0, y: y, width: width, height: height)
-            priceViews[i].center.x = hourLabels[i].center.x
-            
-            if animate {
-                priceViews[i].frame.size.height = 1
-                priceViews[i].frame.origin.y = sheetBottomY
-                UIView.animate(withDuration: 0.5) {
-                    self.priceViews[i].frame.size.height = height
-                    self.priceViews[i].frame.origin.y = y
+            if price > 0 {
+                
+                let relativeHeight = price / maxPriceInSheet
+                let height = sheetHeight * relativeHeight
+                let width = sheetWidth / 24 - 5
+                let y = sheetBottomY - height
+                
+                priceViews[i].frame = CGRect(x: 0, y: y, width: width, height: height)
+                priceViews[i].center.x = hourLabels[i].center.x
+                
+                if animate {
+                    priceViews[i].frame.size.height = 1
+                    priceViews[i].frame.origin.y = sheetBottomY
+                    UIView.animate(withDuration: 0.5) {
+                        self.priceViews[i].frame.size.height = height
+                        self.priceViews[i].frame.origin.y = y
+                    }
+                }
+            } else {
+                let absolutePrice = abs(price)
+                let relativeHeight = absolutePrice / maxPriceInSheet
+                let height = sheetHeight * relativeHeight
+                let width = sheetWidth / 24 - 5
+                let y = sheetBottomY
+                
+                priceViews[i].frame = CGRect(x: 0, y: y, width: width, height: height)
+                priceViews[i].center.x = hourLabels[i].center.x
+                
+                if animate {
+                    priceViews[i].frame.size.height = 1
+                    UIView.animate(withDuration: 0.5) {
+                        self.priceViews[i].frame.size.height = height
+                    }
                 }
             }
         }
@@ -379,7 +400,7 @@ extension ViewController {
             if isPortrait {
                 return 250
             } else {
-                return Int(view.frame.height - headerLabel.frame.height - 80)
+                return Int(view.frame.height - headerLabel.frame.height - 100)
             }
         }
         
@@ -398,7 +419,7 @@ extension ViewController {
         for i in 0..<hourLabels.count {
             let x = sheetXcord + (sheetWidth / 24) * i
             //hourLabels[i].backgroundColor = c[i]
-            let y = Int(sheetTopYcord) + sheetHeight + 5
+            let y = Int(sheetTopYcord) + sheetHeight + 25
             hourLabels[i].frame = CGRect(x: x, y: y, width: sheetWidth / 24, height: 20)
         }
         
